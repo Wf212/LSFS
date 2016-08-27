@@ -22,7 +22,7 @@ unselected_data_file_name = "unselected_data"
 # unselected_cluster_name_file_name = "unselected_cluster_names"
 
 example_rate = 50
-feature_rate = 5
+feature_rate = 1
 unselected_example_rate = 100 - example_rate
 unselected_feature_rate = 100 - feature_rate
 selected_data_file_name = file_path + selected_data_file_name + "_" +  str(example_rate) + "_" + str(feature_rate) + "" + ".txt"
@@ -31,7 +31,7 @@ selected_cluster_name_file_name = file_path + selected_cluster_name_file_name + 
 
 unselected_data_file_name = file_path + unselected_data_file_name + "_" +  str(unselected_example_rate) + "_" + str(feature_rate) + "" + ".txt"
 
-output_file_name = file_path + "result" + "_" +  str(example_rate) + "_" + str(feature_rate) + "" + ".txt"
+output_file_name = file_path + "prpc_result" + "_" +  str(example_rate) + "_" + str(feature_rate) + "" + ".txt"
 
 print(selected_data_file_name)
 # print(selected_feature_file_name)
