@@ -1,6 +1,5 @@
-#/usr/bin/python
-# -*- coding=utf-8 -*-
-
+#!usr/bin/python
+# -*- coding:utf-8 -*-
 
 
 import pandas as pd
@@ -9,6 +8,7 @@ import scipy as sp
 import sys
 import time
 
+from LSDF_FUN import *
 
 def append_module_path():
     import sys
@@ -17,7 +17,7 @@ def append_module_path():
         "../evaluate",
         "../read_data",
         "../PRPC",
-        "../LSDF"
+        "../laplacian_score"
     ]
     
     for path in paths:
@@ -28,25 +28,7 @@ append_module_path()
 import gen_data
 import evaluate
 import read_data
-import PRPC_FUN
-import LSDF_FUN
-from general_algorithm import *
 
-
-from laplacian_score_FUN import *
-from general_algorithm import *
-
-import pandas as pd
-import numpy as np
-import scipy as sp
-import os
-import random
-import time
-import sys
-
-
-from read_data import *
-from evaluate import *
 
 file_path = "..\\..\\data_selected\\gene\\brain\\"
 
@@ -62,20 +44,20 @@ feature_rate = 1
 
 output_file_name = file_path + "lsfs_result" + "_" +  str(example_rate) + "_" + str(feature_rate) + "" + ".txt"
 
-XL_train, YL_train, XU_train, YU_train  = get_data(file_path, selected_data_file_name, selected_cluster_name_file_name, \
+XL_train, YL_train, XU_train, YU_train  = read_data.get_data(file_path, selected_data_file_name, selected_cluster_name_file_name, \
                                     unselected_data_file_name, unselected_cluster_name_file_name, example_rate, feature_rate)
 
 # feature_order, time_dual, a = run_accuracy(lsfs, XL_train,YL_train,XU_train,YU_train, 10, output_file_name)
 
 XL, YL, XU, YU = XL_train.copy(), YL_train.copy(), XU_train.copy(), YU_train.copy()
 
-feature_order, time_dual = laplacian_score_feature_order2(XL, k = 10, output_file_name="feature_order")
+feature_order, time_dual =  lsdf(XL, YL, XU, output_file_name="feature_order")
 
 num_feature = len(feature_order)
 if num_feature > 300:
     num_feature = 300
 
-acc_array = cal_many_acc(XL_train, YL_train, XU_train, YU_train,\
+acc_array = evaluate.cal_many_acc(XL_train, YL_train, XU_train, YU_train,\
                            feature_order, num_feature = num_feature)
 
 
@@ -86,5 +68,7 @@ print("===================================================================")
 print("time : ", time_dual)
 
 
-plot_array_like(acc_array, xlabel_name="number feature", ylabel_name="accuracy")
+evaluate.plot_array_like(acc_array, xlabel_name="number feature", ylabel_name="accuracy")
+
+
 

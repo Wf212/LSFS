@@ -59,6 +59,45 @@ def filter_KNN(S, k = 1):
     return S
 
 
+def get_KNN_flag(S, k = 1):
+    """
+    返回K近邻矩阵，i的k近邻包含j，
+    则knn_flag[i, j] = True
+    """
+    
+    """
+    # 注意：小s是大S的每行的引用
+    """
+    
+    S = S.copy()
+    n, m = S.shape
+    knn_flag = np.ones((n, m))
+    
+    for i in range(np.min([n, m])):
+        S[i, i] = np.inf
+    
+    for i,s in enumerate(S):
+        s = s.copy()
+        k_value = k_th(s, 0, len(s)-1, k)
+        
+        need_cnt = k - ( len(s) - np.sum(s>=k_value) )
+    
+        knn_flag[i:i+1,s>k_value] = 0
+        
+        index = []
+        for j in range(len(s)):
+            if s[j] == k_value:
+                index.append(j)
+    
+        if (len(index) < need_cnt):
+            print("equal number invalid")
+            
+#         print(index)
+        np.random.shuffle(index)
+        knn_flag[i:i+1, index[:len(index) - need_cnt]] = 0
+    
+    return knn_flag.astype(np.bool)
+
 
 def k_th(arr, low, high, k, it_cnt = None):
     import copy
