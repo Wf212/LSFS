@@ -5,14 +5,14 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 import sys
-
+import time
 
 
 """
 Fr = sum n_i*(u_i -u)^2  /  sum n_i * theta_i^2
      i=1:c                  i=1:c
 """
-def fisher_score(x_train, y_train):
+def fisher_score(x_train, y_train, output_file_name="feature_order"):
     
     """
     特征
@@ -26,6 +26,9 @@ def fisher_score(x_train, y_train):
     y_c = set(y_train)
     
     feature_value = np.zeros(f_len, dtype=np.float)
+    
+    s = time.clock()
+    
     # 对于每个特征
     for f_i in x_f:
         # i特征的数据
@@ -63,4 +66,10 @@ def fisher_score(x_train, y_train):
         
     feature_order = np.argsort(feature_value)
     feature_order = feature_order[::-1]
-    return feature_order
+    
+    time_dual = time.clock() - s
+
+    with open(output_file_name, "w+") as result_file:
+        print("\n".join([str(w) for w in feature_order]), file=result_file)
+    
+    return feature_order, time_dual

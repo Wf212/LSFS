@@ -26,6 +26,7 @@ from my_math import *
 from PRPC_FUN import *
 from read_data import *
 from evaluate import *
+from my_pickle import to_pickle
 
 file_path = "..\\..\\data_selected\\gene\\brain\\"
 
@@ -37,9 +38,9 @@ unselected_data_file_name = "unselected_data"
 # unselected_feature_file_name = "unselected_features"
 unselected_cluster_name_file_name = "unselected_cluster_names"
 example_rate = 50
-feature_rate = 1
+feature_rate = 10
 
-output_file_name = file_path + "prpc_result" + "_" +  str(example_rate) + "_" + str(feature_rate) + "" + ".txt"
+output_file_name = "..\\result\\" + "prpc_result" + "_" +  str(example_rate) + "_" + str(feature_rate) + "" + ".txt"
 
 
 
@@ -49,15 +50,17 @@ XL_train, YL_train, XU_train, YU_train  = get_data(file_path, selected_data_file
 
 
 
-order_Fs, time_dual = prpc(XL_train, YL_train, XU_train, output_file_name="feature_order")
+order_Fs, time_dual = prpc(XL_train, YL_train, XU_train, output_file_name=output_file_name)
 
 
 num_feature = len(order_Fs)
-if num_feature > 300:
-    num_feature = 300
+#if num_feature > 300:
+#    num_feature = 300
     
 acc_array = cal_many_acc(XL_train, YL_train, XU_train, YU_train,\
                            order_Fs, num_feature = num_feature)
+
+to_pickle("..\\result\\"+"prpc_accuracy" + "_" +  str(example_rate) + "_" + str(feature_rate) + ".pkl", acc_array)
 
 print(order_Fs)
 print("===================================================================")

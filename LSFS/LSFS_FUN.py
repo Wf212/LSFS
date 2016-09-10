@@ -18,7 +18,8 @@ def append_module_path():
     paths = [ \
         "../gen_data",
         "../evaluate",
-        "../read_data"
+        "../read_data",
+        "../PRPC"
     ]
     
     for path in paths:
@@ -38,29 +39,39 @@ def norm_2_1(a):
     return np.sum(np.linalg.norm(a, ord = 2, axis=1))
 
 
-def fun22_value(W, X, H, Q, Y):
+def fun22_value(W, X, H, Q, Y, gama = 10**-6):
     """
     ||H*X.T*W - H*Y||F范数 ^ 2 + gama * (W.T*Q*W)的迹
     """
-    gama = 10^-6
+#    gama = 10**-6
     return np.linalg.norm(np.dot(np.dot(H, X.T), W) - np.dot(H, Y), ord = "fro")**2 + gama*np.trace(np.dot(np.dot(W.T, Q),W))
 
 
-def fun8_value(X, Y, W, b):
+def fun17_value(W, X, Y, gama = 10**-6):
+    """
+    ||H*X.T*W - H*Y||F范数 ^ 2 + gama * (W.T*Q*W)的迹
+    """
+#    gama = 10**-6
+#     print(X.shape, Y.shape, W.shape)
+    b = compute_b(X, Y, W)
+#     print("17 value", np.linalg.norm(np.dot(X.T, W) + np.dot(np.ones((X.shape[1],1)), b.T) - Y, ord = "fro")**2 + gama*(norm_2_1(W)**2))
+    return np.linalg.norm(np.dot(X.T, W) + np.dot(np.ones((X.shape[1],1)), b.T) - Y, ord = "fro")**2 + gama*(norm_2_1(W)**2)
+
+
+def fun8_value(X, Y, W, b, gama = 10**-6):
     """
     X : d x n
     
     ||X.T * W + 1*b.T - Y||的L2范数 ^ 2 + gama * ( ||W||的F范数 ^ 2 )
     """
-    gama = 10^-6
+#    gama = 10**-6
     n = X.shape[1]
     return np.linalg.norm( np.dot(X.T,W) + np.dot(np.ones((n, 1)),b.T) - Y , ord=2)**2 + gama*(np.linalg.norm( W , ord = "fro")**2)
 
 
-
-def compute_W(X, Y, H, Q):
-#     gama = 10^-6
-    gama = 60
+def compute_W(X, Y, H, Q, gama = 10**-6):
+#     gama = 10**-6
+#    gama = 60
     """
     W = (X*H*X.T + gama * Q)^-1 * X*H*Y
     """
@@ -95,7 +106,7 @@ def compute_Q(W):
 
 
 
-def get_W(X, Y):
+def get_W(X, Y, gama = 10**-6):
     
     """
     d特征，c类别，n样本数
@@ -118,30 +129,45 @@ def get_W(X, Y):
     # H矩阵不变，算一遍即可
     H = compute_H(n)
     
-    W = compute_W(X, Y, H, Q)
+    W = compute_W(X, Y, H, Q, gama = gama )
     Q = compute_Q(W)
-    pre_f = cur_f = fun22_value(W, X, H, Q, Y)
+#    pre_f = cur_f = fun22_value(W, X, H, Q, Y, gama = gama)
+    pre_f = cur_f = fun17_value(W, X, Y, gama = gama)
+    
+    # nan 判断
+    if cur_f != cur_f:
+        print("nei nan")
+        return W
     
 #     print(W)
 #     print()
 #     print(Q)
 #     print("====================")
     
-    NITER = 900
+    NITER = 30
     epsilon = 10**-8
     for i in range(NITER):
         pre_f = cur_f
-        W = compute_W(X, Y, H, Q)
+        W = compute_W(X, Y, H, Q, gama = gama)
         Q = compute_Q(W)
         
 #         print_W(W)
         
-        cur_f = fun22_value(W, X, H, Q, Y)
+#        cur_f = fun22_value(W, X, H, Q, Y, gama = gama)
+        cur_f = fun17_value(W, X, Y, gama = gama)
         
-        if abs((cur_f - pre_f) / cur_f) < epsilon:
+        # nan 判断
+        if cur_f != cur_f:
+            print("nei nan")
+            break
+            
+        # coverage
+        if cur_f == 0 and abs((cur_f - pre_f)/(cur_f + epsilon)) < epsilon:
+            break
+            
+        if cur_f != 0 and abs((cur_f - pre_f)/(cur_f)) < epsilon:
             break
     return W
-
 
 
 def compute_YU(X, W, b):
@@ -178,7 +204,7 @@ def compute_b(X, Y, W):
 
 
 
-def get_new_X_Y_YU_W_f(X, Y, XL, YL, XU):
+def get_new_X_Y_YU_W_f(X, Y, XL, YL, XU, gama = 10**-6):
     """
     X : d x n
     Y : n x c
@@ -187,7 +213,7 @@ def get_new_X_Y_YU_W_f(X, Y, XL, YL, XU):
     XU : nu x d
     """
 #     n = X.shape[1]
-    W = get_W(X, Y)
+    W = get_W(X, Y, gama = gama)
     
 #     print_W(W)
 #     b = 1/n*(np.dot(Y.T, np.ones((n,1))) - np.dot(np.dot(W.T, X), np.ones((n,1))))
@@ -199,8 +225,10 @@ def get_new_X_Y_YU_W_f(X, Y, XL, YL, XU):
     Y = sp.concatenate((YL, YU), axis = 0)
     
     X = X.T
-    cur_f = fun8_value(X, Y, W, b)
+    cur_f = fun8_value(X, Y, W, b, gama = gama)
     return X, Y, YU, W, cur_f
+
+
 
 
 def compute_thea(W):
@@ -217,26 +245,58 @@ def compute_thea(W):
 
 
 
+def compute_acc_diff_gama_fearture(XL_train, YL_train, XU_train, YU_train, gama_array, idx_array\
+                                   , output_file_name="feature_order"):
+    XL, YL, XU, YU = XL_train.copy(), YL_train.copy(), XU_train.copy(), YU_train.copy()
+    YL = read_data.label_n1_to_nc(YL)
+    YU = read_data.label_n1_to_nc(YU)
+    data = []
+    for gama in gama_array:
+        print("gama : ", gama)
+        feature_order, time_dual = lsfs( XL, YL, XU, output_file_name=output_file_name, gama = gama )
+        acc_array = evaluate.cal_many_acc_by_idx(XL_train, YL_train, XU_train, YU_train,\
+                               feature_order, idx_array)
+        data.append(acc_array)
+    return np.array(data)
+
 
             
-def lsfs(XL, YL, XU, output_file_name="feature_order"):
+def lsfs(XL, YL, XU, output_file_name="feature_order", gama = 10**-6):
     start_time = time.clock()
 
-    X, Y, YU, W, cur_f = get_new_X_Y_YU_W_f(XL.T, YL, XL, YL, XU)
-
+    X, Y, YU, W, cur_f = get_new_X_Y_YU_W_f(XL.T, YL, XL, YL, XU, gama = gama)
+    # nan 判断  
+    if cur_f != cur_f:
+        s = compute_thea(W)
+        feature_order = list( np.argsort(s) )
+        feature_order = feature_order[::-1]
+        print("wai nan")
+        return feature_order, None
+    
     print_W(W)
 
-    NITER = 100
+    NITER = 20
     epsilon = 10**-8
     for i in range(NITER):
         pre_f = cur_f
 
-        X, Y, YU, W, cur_f = get_new_X_Y_YU_W_f(X, Y, XL, YL, XU)
+        X, Y, YU, W, cur_f = get_new_X_Y_YU_W_f(X, Y, XL, YL, XU, gama = gama)
 
+        
         print_W(W)
 
-        # coverage
-        if abs((cur_f - pre_f) / cur_f) < epsilon:
+#         print(cur_f)
+        
+    
+        # nan 判断  
+        if cur_f != cur_f:
+            break
+        
+        # coverage 
+        if cur_f == 0 and abs((cur_f - pre_f)/(cur_f + epsilon)) < epsilon:
+            break
+            
+        if cur_f != 0 and abs((cur_f - pre_f)/(cur_f)) < epsilon:
             break
 
 

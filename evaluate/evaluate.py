@@ -7,7 +7,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import svm
-
+from mpl_toolkits.mplot3d import Axes3D   
 
 def accuracy(true_label, clust_label):
     """
@@ -70,9 +70,10 @@ def get_train_test_rate(x, y, rate=None):
 
 
 def run_acc(x, y, row_selected_rate=None):
-    cnt = 100
+    cnt = 10
     sum_accuracy = 0.0
     avg_accuracy = 0.0
+    model = svm.LinearSVC(loss='hinge')
     for i in range(cnt):
         row_num = x.shape[0]
         # 根据比例筛选数据
@@ -89,7 +90,6 @@ def run_acc(x, y, row_selected_rate=None):
         
         
         # fit a SVM model to the data
-        model = svm.LinearSVC(loss='hinge')
         model.fit(train_set, train_label)
         # print(model)
         # make predictions
@@ -115,10 +115,96 @@ def cal_many_acc(XL_train, YL_train, XU_train, YU_train,\
 
 
 
+def cal_many_acc_by_idx(XL_train, YL_train, XU_train, YU_train,\
+                           feature_order, idx_array):
+#     print("idx_array", idx_array.shape)
+    acc_array = np.zeros(idx_array.shape)
+#     print("acc_array", acc_array.shape)
+    for idx, i in enumerate(idx_array):
+        X,Y = select_data(XL_train, YL_train, XU_train, YU_train,\
+                           feature_order, sel_num=i)
+        a = run_acc(X,Y)
+        acc_array[idx] = a
+#        print(a)
+    return acc_array
+
+ 
+def hist3d(y_label, x_label, z_value, \
+           y_label_name = "y", x_label_name = "x", z_label_name = "z", output_filepath = "..\\result\\lsfs_featue_namuda.png"):
+
+    """
+    y -> row -> data.shape[0]
+    x -> column -> data->shape[1]
+    """
+    
+    column_names = x_label.copy()
+    row_names = y_label.copy()
+
+
+
+    data = z_value.copy()
+
+    fig = plt.figure(figsize=(8, 5))
+    ax = Axes3D(fig)
+
+    lx= len(data[0])            # Work out matrix dimensions
+    ly= len(data[:,0])
+    xpos = np.arange(0,lx,1)    # Set up a mesh of positions
+    ypos = np.arange(0,ly,1)
+    xpos, ypos = np.meshgrid(xpos+0.25, ypos+0.25)
+
+    xpos = xpos.flatten()   # Convert positions to 1D array
+    ypos = ypos.flatten()
+    zpos = np.zeros(lx*ly)
+
+    dx = 0.5 * np.ones_like(zpos)
+    dy = dx.copy()
+    dz = data.flatten()
+    
+    bar_colors = ['red', 'green', 'blue', 'aqua',
+          'burlywood', 'cadetblue', 'chocolate', 'cornflowerblue',
+          'crimson', 'darkcyan', 'darkgoldenrod', 'darkgreen',
+          'purple', 'darkred', 'darkslateblue', 'darkviolet']
+    
+    colors = []
+    
+    for i in range(len(y_label)):
+        for j in range(len(x_label)):
+            colors.append(bar_colors[i])
+            
+    ax.bar3d(xpos,ypos,zpos, dx, dy, dz, color=colors, alpha = 0.6)
+
+    #sh()
+    ax.w_xaxis.set_ticklabels(x_label)
+    ax.w_yaxis.set_ticklabels(y_label)
+    ax.set_xlabel(x_label_name)
+    ax.set_ylabel(y_label_name)
+    ax.set_zlabel(z_label_name)
+
+    #ax.w_xaxis.set_ticklabels(column_names)
+    #ax.w_yaxis.set_ticklabels(row_names)
+
+    # start, stop, step
+    ticksx = np.arange(0.5, lx, 1)
+    plt.xticks(ticksx, x_label)
+
+    ticksy = np.arange(0.6, ly, 1)
+    plt.yticks(ticksy, y_label)
+    
+    plt.savefig(output_filepath)
+    print("save to ", output_filepath)
+    plt.close()
+    
+#     plt.show()
+
+
+
 def plot_array_like(array_1d, xlabel_name="number feature", ylabel_name="accuracy"):
     figsize = (8, 5)
     fig = plt.figure(figsize=figsize)
 
+    print(array_1d)
+    
     plt.plot(range(len(array_1d)), array_1d)
 
     plt.xlabel(xlabel_name)
