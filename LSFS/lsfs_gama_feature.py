@@ -50,7 +50,7 @@ for file_path in file_paths:
     unselected_data_file_name = "unselected_data"
     # unselected_feature_file_name = "unselected_features"
     unselected_cluster_name_file_name = "unselected_cluster_names"
-    example_rate = 50
+    example_rate = 30
     feature_rate = 10
 
     output_file_name = "..\\result\\gama_feature\\" + "lsfs_gama_feature_result_" + file_path.split("\\")[-2] + "_" +  \

@@ -61,20 +61,24 @@ def filter_KNN(S, k = 1):
 
 def get_KNN_flag(S, k = 1):
     """
-    返回K近邻矩阵，i的k近邻包含j，
-    则knn_flag[i, j] = True
+    S矩阵的每行留下最小的K个值
     """
     
     """
     # 注意：小s是大S的每行的引用
+    如果k大于样本数，则k会被设置成样本数的一半
     """
     
     S = S.copy()
     n, m = S.shape
     knn_flag = np.ones((n, m))
     
-    for i in range(np.min([n, m])):
-        S[i, i] = np.inf
+    if m < k:
+        print("k大于样本数，k被设置成样本数的一半")
+        k = int( m * 0.5 )
+    
+#    for i in range(np.min([n, m])):
+#        S[i, i] = np.inf
     
     for i,s in enumerate(S):
         s = s.copy()

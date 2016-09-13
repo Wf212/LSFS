@@ -32,6 +32,37 @@ import evaluate
 import read_data
 
 
+def norm_2_1_v2(a):
+    """
+    对每行的向量求第二范数，然后对所有范数求和
+    """
+    return np.sum( np.sqrt( np.linalg.norm(a, ord = 2, axis=1) ** 2 + 10**-6 ) )
+
+
+def compute_Q(W):
+    """
+    q(ij) = ||W||2,1 / ||w^j||2
+    
+    axis = 1 =》 对W的每一行求L2范数
+    np.linalg.norm(W, ord=2, axis = 1) =》 对每行求L2范数
+    """
+    Q = norm_2_1_v2(W) / np.sqrt( np.linalg.norm(W, ord = 2, axis=1) ** 2 + 10**-6 )
+    Q = np.diag(Q)
+    return Q
+
+
+def compute_Q2(W):
+    """
+    q(ij) = ||W||2,1 / ||w^j||2
+    
+    axis = 1 =》 对W的每一行求L2范数
+    np.linalg.norm(W, ord=2, axis = 1) =》 对每行求L2范数
+    """
+    Q = norm_2_1(W) / np.linalg.norm(W, ord = 2, axis=1)
+    Q = np.diag(Q)
+    return Q
+
+
 def norm_2_1(a):
     """
     对每行的向量求第二范数，然后对所有范数求和
@@ -90,19 +121,6 @@ def compute_H(n):
     """
     H = np.eye(n,n) - 1/n*np.ones((n,n))
     return H
-
-
-
-def compute_Q(W):
-    """
-    q(ij) = ||W||2,1 / ||w^j||2
-    
-    axis = 1 =》 对W的每一行求L2范数
-    np.linalg.norm(W, ord=2, axis = 1) =》 对每行求L2范数
-    """
-    Q = norm_2_1(W) / np.linalg.norm(W, ord = 2, axis=1)
-    Q = np.diag(Q)
-    return Q
 
 
 
@@ -254,7 +272,7 @@ def compute_acc_diff_gama_fearture(XL_train, YL_train, XU_train, YU_train, gama_
     for gama in gama_array:
         print("gama : ", gama)
         feature_order, time_dual = lsfs( XL, YL, XU, output_file_name=output_file_name, gama = gama )
-        acc_array = evaluate.cal_many_acc_by_idx(XL_train, YL_train, XU_train, YU_train,\
+        acc_array = evaluate.cal_many_acc_by_idx2(XL_train, YL_train, XU_train, YU_train,\
                                feature_order, idx_array)
         data.append(acc_array)
     return np.array(data)

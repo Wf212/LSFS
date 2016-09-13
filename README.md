@@ -25,6 +25,25 @@ LSFS/LSFS_TEST.py
 数学函数L2_1norm
 LSFS/math.py
 
+使用svm求分类的accuracy
+LSFS/Baseline.py
+
+用 对分类贡献前k大特征 进行分类时的accuracy
+LSFS/feature_accuracy.py
+
+LSFS的正则项取不同gama值时候，分类的accuracy
+LSFS/get_gama.py
+
+LSFS算法不同gama值，特征个数对应的accuracy，（三维柱状图）
+LSFS/lsfs_gama_feature.py
+
+LSFS算法（包括W的目标函数值）目标函数值随着迭代次数增加的变化
+LSFS/objFun_iter.py
+
+LSFS算法不同gama值，accuracy与特征个数的关系。（对accuracy由大到小排列取前K个来绘图，一个gama值一条曲线）
+LSFS/plot_theta_feature.py
+
+
 解决问题
 %
 %  min  1/2 || x - v||^2
@@ -70,4 +89,5 @@ LSDF/LSDF.py
 
 LSDF算法相关函数
 LSDF/LSDF_FUN.py
+
 

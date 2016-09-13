@@ -263,7 +263,7 @@ def compute_acc_diff_gama_fearture(XL_train, YL_train, XU_train, YU_train, gama_
     data = []
     for gama in gama_array:
         feature_order, time_dual = lsfs( XL, YL, XU, output_file_name=output_file_name, gama = gama )
-        acc_array = evaluate.cal_many_acc_by_idx(XL_train, YL_train, XU_train, YU_train,\
+        acc_array = evaluate.cal_many_acc_by_idx2(XL_train, YL_train, XU_train, YU_train,\
                                feature_order, idx_array)
         data.append(acc_array)
 
@@ -430,8 +430,8 @@ for file_path in file_paths:
         unselected_data_file_name = "unselected_data"
         # unselected_feature_file_name = "unselected_features"
         unselected_cluster_name_file_name = "unselected_cluster_names"
-        example_rate = 50
-        feature_rate = 1
+        example_rate = 10
+        feature_rate = 10
 
 
         output_file_name_nei = "..\\result\\iter_objFun\\" + "lsfs_iter_objFun_result_nei_" + file_path.split("\\")[-2] + "_" +  \

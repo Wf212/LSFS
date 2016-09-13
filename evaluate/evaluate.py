@@ -47,6 +47,16 @@ def select_data(XL, YL, XU, YU, feature_order, sel_num = None):
     return X, Y
 
 
+def select_data2(XL, YL, XU, YU, feature_order, sel_num = None):
+    """
+    重组和筛选特征
+    """
+    if sel_num == None:
+        sel_num = len(feature_order)
+    sel_feature = feature_order[:sel_num]
+    return XL[:,sel_feature].copy(), YL.copy(), XU[:,sel_feature].copy(), YU.copy()
+
+
 def get_train_test_rate(x, y, rate=None):
     """
     抽样=》训练，测试
@@ -101,6 +111,35 @@ def run_acc(x, y, row_selected_rate=None):
     return avg_accuracy
 
 
+def run_acc2(train_set, train_label, test_set, test_label):
+    cnt = 10
+    sum_accuracy = 0.0
+    avg_accuracy = 0.0
+    model = svm.LinearSVC(loss='hinge')
+    for i in range(cnt):
+#        row_num = x.shape[0]
+        # 根据比例筛选数据
+#        row_selected_rate = 0.5
+#         row_selected = random.sample(range(row_num), int(row_selected_rate*row_num))
+#         row_unselected = list(set(range(row_num)) - set(row_selected))
+        
+#         train_set = X[row_selected, :]
+#         train_label = Y[row_selected]
+#         test_set = X[row_unselected, :]
+#         test_label = Y[row_unselected]
+        
+        # fit a SVM model to the data
+        model.fit(train_set, train_label)
+        # print(model)
+        # make predictions
+        expected = test_label
+        predicted = model.predict(test_set)
+        
+        sum_accuracy += accuracy(expected, predicted)
+    avg_accuracy = sum_accuracy / cnt
+    return avg_accuracy
+
+
 
 def cal_many_acc(XL_train, YL_train, XU_train, YU_train,\
                            feature_order, num_feature = 10):
@@ -109,6 +148,20 @@ def cal_many_acc(XL_train, YL_train, XU_train, YU_train,\
         X,Y = select_data(XL_train, YL_train, XU_train, YU_train,\
                            feature_order, sel_num=i)
         a = run_acc(X,Y)
+        acc_array[i] = a
+#        print(a)
+    return acc_array
+
+
+def cal_many_acc2(XL_train, YL_train, XU_train, YU_train,\
+                           feature_order, num_feature = 10):
+    acc_array = np.zeros(num_feature)
+    for i in range(1,num_feature):
+#        X,Y = select_data(XL_train, YL_train, XU_train, YU_train,\
+#                           feature_order, sel_num=i)
+#        a = run_acc(X,Y)
+        XL, YL, XU, YU = select_data2(XL_train, YL_train, XU_train, YU_train, feature_order, sel_num = i)
+        a = run_acc2(XL, YL, XU, YU)
         acc_array[i] = a
 #        print(a)
     return acc_array
@@ -124,6 +177,22 @@ def cal_many_acc_by_idx(XL_train, YL_train, XU_train, YU_train,\
         X,Y = select_data(XL_train, YL_train, XU_train, YU_train,\
                            feature_order, sel_num=i)
         a = run_acc(X,Y)
+        acc_array[idx] = a
+#        print(a)
+    return acc_array
+
+
+def cal_many_acc_by_idx2(XL_train, YL_train, XU_train, YU_train,\
+                           feature_order, idx_array):
+#     print("idx_array", idx_array.shape)
+    acc_array = np.zeros(idx_array.shape)
+#     print("acc_array", acc_array.shape)
+    for idx, i in enumerate(idx_array):
+#        X,Y = select_data(XL_train, YL_train, XU_train, YU_train,\
+#                           feature_order, sel_num=i)
+#        a = run_acc(X,Y)
+        XL, YL, XU, YU = select_data2(XL_train, YL_train, XU_train, YU_train, feature_order, sel_num = i)
+        a = run_acc2(XL, YL, XU, YU)
         acc_array[idx] = a
 #        print(a)
     return acc_array
