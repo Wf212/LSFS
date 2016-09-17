@@ -166,7 +166,8 @@ def laplacian_score_feature_order(x_train, k = 10, output_file_name="feature_ord
     time_dual = time.clock() - start_time
 
     feature_order = list( np.argsort(feature_score) )
-    feature_order = feature_order[::-1]
+    # For a good feature, Laplacian Score tends to be small.《Laplacian Score for Feature Selection》
+    # feature_order = feature_order[::-1]
     with open(output_file_name, "w+") as result_file:
         print("\n".join([str(w) for w in feature_order]), file=result_file)
     return feature_order, time_dual
@@ -178,7 +179,8 @@ def laplacian_score_feature_order2(x_train, k = 10, output_file_name="feature_or
     time_dual = time.clock() - start_time
 
     feature_order = list( np.argsort(feature_score) )
-    feature_order = feature_order[::-1]
+    # For a good feature, Laplacian Score tends to be small.《Laplacian Score for Feature Selection》
+    # feature_order = feature_order[::-1]
     with open(output_file_name, "w+") as result_file:
         print("\n".join([str(w) for w in feature_order]), file=result_file)
     return feature_order, time_dual
